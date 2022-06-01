@@ -2,11 +2,14 @@
 
 from random import choice
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
+
+from madlib_options import options
 
 # "__name__" is a special Python variable for the name of the current module.
 # Flask wants to know this to know what any imported things are relative to.
 app = Flask(__name__)
+app.secret_key = 'super_secret_key'
 
 AWESOMENESS = [
     'awesome', 'terrific', 'fantastic', 'neato', 'fantabulous', 'wowza',
@@ -14,7 +17,7 @@ AWESOMENESS = [
     'smashing', 'lovely',
 ]
 
-colors = [
+COLORS = [
     'red','orange','yellow','green','blue','purple','pink', 'black', 'brown', 'gray', 'white'
 ]
 
@@ -51,29 +54,20 @@ def show_madlib_form():
     if response == "no":
         return render_template("goodbye.html")
     else:
-        return render_template("game.html", colors=colors)
+        selection = choice(list(options))
+        session['madlib_name'] = selection
+        name = options[selection]['name']
+        types = options[selection]['types']
+        return render_template("game.html", name=name, types=types)
 
 @app.route('/madlib')
 def show_madlib():
-    person = request.args.get('person')
-    colors = request.args.getlist('colors')
-    color = ''
-    if len(colors) > 2:
-        for i in range(len(colors)):
-            if i != len(colors) - 1:
-                color += colors[i] + ', '
-            else:
-                color += 'and ' + colors[i]
-    elif len(colors) ==2:
-        color = colors[0] + ' and ' + colors[1] 
-    elif len(colors) == 1:
-        color = colors[0]
-    else:
-        color = 'clear'
-    noun = request.args.get('noun')
-    adjective = request.args.get('adjective')
-    print(colors)
-    return render_template('madlib.html', person=person, color=color, noun=noun, adjective=adjective)
+    madlib_name = session['madlib_name']
+    name = options[madlib_name]['name']
+    res = {}
+    for key in options[madlib_name]['types'].keys():
+        res[key] = request.args.get(key)
+    return render_template('madlib.html', name=name, res=res)
 
 if __name__ == '__main__':
     # Setting debug=True gives us error messages in the browser and also

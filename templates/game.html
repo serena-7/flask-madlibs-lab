@@ -5,17 +5,11 @@
 </head>
 <body>
     <form action="/madlib">
-        MAKE YOUR CHOICES: <br>
-        Choose a person: <br>
-        <input type="text" name="person"><br>
-        Choose color(s):<br>
-            {% for color in colors %}
-            <input type="checkbox" name="colors" value="{{color}}">{{color}}<br>
-            {% endfor %}
-        Choose a noun:<br>
-        <input type="text" name="noun"><br>
-        Choose an adjective:<br>
-        <input type="text" name="adjective"><br>
+        <h2>Make choices for {{name}} Madlib:</h2> <br><br>
+        {% for key, value in types.items() %}
+            {{value}}: <br>
+            <input type="text" name="{{key}}"> <br>
+        {% endfor %}
         <button type="submit">Submit</button>
     </form>
 </body>
